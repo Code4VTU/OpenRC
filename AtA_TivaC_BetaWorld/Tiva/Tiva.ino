@@ -145,7 +145,7 @@ void ParseCommand(String command)
     }
     else if(command[2] == 'B')
     {
-      left_motor.speed(leftWheelPWM);		// forward
+      left_motor.speed(-leftWheelPWM);		// forward
     }
     else
     {
@@ -159,7 +159,7 @@ void ParseCommand(String command)
     }
     else if(command[7] == 'B')
     {	
-      right_motor.speed(rightWheelPWM);
+      right_motor.speed(-rightWheelPWM);
     }
     else
     {
