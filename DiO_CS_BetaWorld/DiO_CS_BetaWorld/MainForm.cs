@@ -74,6 +74,10 @@ namespace DiO_CS_BetaWorld
         /// </summary>
         private GlyphRecognizer recognizer;
 
+        /// <summary>
+        /// Recogniesed database.
+        /// </summary>
+        private List<ExtractedGlyphData> recognisedGlyphs;
 
         #endregion
 
@@ -116,8 +120,25 @@ namespace DiO_CS_BetaWorld
             this.frameGrabber.Stop();
             this.frameGrabber.Interval = 10;
 
+            // Create data base?
+            this.glyphDatabases = new GlyphDatabases();
+            
+            // Create 
+            this.recognisedGlyphs = new List<ExtractedGlyphData>();
+            //this.imagePoints = new AForge.Point[4];
+            //this.pointsColors = new Color[4]
+            //{
+            //    Color.Yellow,
+            //    Color.Blue,
+            //    Color.Red,
+            //    Color.Lime
+            //};
+
             // Load glyph data base.
-            this.LoadGlyphDatabases5();           
+            this.LoadGlyphDatabases5();
+
+            // Setup data grid view for glyph data.
+            this.SetupDGVGlyphData();
         }
 
         #endregion
@@ -286,10 +307,68 @@ namespace DiO_CS_BetaWorld
         /// <summary>
         /// Process image form the camera.
         /// </summary>
-        /// <param name="bitmap"></param>
-        private void ProcessImage(Bitmap bitmap)
+        /// <param name="bitmap">Image for recognition.</param>
+        private void ProcessImage(Bitmap image)
         {
+            // Create tmp buffer.
+            List<ExtractedGlyphData> tmpGlyps = recognizer.FindGlyphs(this.capturedImage);
+            // Rewrite the glyph buffer.
+            this.recognisedGlyphs = tmpGlyps;
+        }
 
+        private void SetupDGVGlyphData()
+        {
+            //this.Controls.Add(dgvSelectWorkpiece);
+            
+            this.dgvGlyphData.ColumnCount = 2;
+
+            this.dgvGlyphData.ColumnHeadersDefaultCellStyle.BackColor = Color.Navy;
+            this.dgvGlyphData.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+            this.dgvGlyphData.ColumnHeadersDefaultCellStyle.Font =
+                new Font(this.dgvGlyphData.Font, FontStyle.Bold);
+
+            this.dgvGlyphData.Name = "this.dgvGlyphData";
+            this.dgvGlyphData.Location = new System.Drawing.Point(8, 8);
+            this.dgvGlyphData.Size = new Size(500, 250);
+            this.dgvGlyphData.AutoSizeRowsMode =
+                DataGridViewAutoSizeRowsMode.DisplayedCellsExceptHeaders;
+            this.dgvGlyphData.ColumnHeadersBorderStyle =
+                DataGridViewHeaderBorderStyle.Single;
+            this.dgvGlyphData.CellBorderStyle = DataGridViewCellBorderStyle.Single;
+            this.dgvGlyphData.GridColor = Color.Black;
+            this.dgvGlyphData.RowHeadersVisible = false;
+
+            this.dgvGlyphData.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+
+            this.dgvGlyphData.Columns[0].Name = "Name";
+            this.dgvGlyphData.Columns[0].Width = 70;
+            this.dgvGlyphData.Columns[1].Name = "Coordinates";
+            this.dgvGlyphData.Columns[1].Width = 150;
+
+            //dgvSelectWorkpiece.Columns[4].DefaultCellStyle.Font =
+            //    new Font(dgvSelectWorkpiece.DefaultCellStyle.Font, FontStyle.Italic);
+
+            this.dgvGlyphData.SelectionMode =
+                DataGridViewSelectionMode.FullRowSelect;
+            this.dgvGlyphData.MultiSelect = false;
+            this.dgvGlyphData.Dock = DockStyle.Fill;
+        }
+
+
+        private void PopulateGlyhData(List<ExtractedGlyphData> glyphs)
+        {
+            this.dgvGlyphData.Rows.Clear();
+
+            foreach (ExtractedGlyphData item in glyphs)
+            {
+                string[] row = new string[]
+                {
+                    "",
+                    "",
+                };
+
+                this.dgvGlyphData.Rows.Add(row);
+            }
         }
 
         #endregion
@@ -370,6 +449,8 @@ namespace DiO_CS_BetaWorld
             //TODO: Make preprocessing hear if it is needed.
 
             this.ProcessImage(this.capturedImage);
+
+            this.PopulateGlyhData(this.recognisedGlyphs);
 
             Bitmap rszImage = AppUtils.FitImage(this.capturedImage, this.pbMain.Size);
             this.pbMain.Image = rszImage;

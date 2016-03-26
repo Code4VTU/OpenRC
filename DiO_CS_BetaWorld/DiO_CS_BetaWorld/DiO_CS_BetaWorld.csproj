@@ -52,6 +52,9 @@
       <HintPath>..\packages\AForge.Video.DirectShow.2.2.5\lib\AForge.Video.DirectShow.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="AForge.Vision.GlyphRecognition">
+      <HintPath>..\..\..\..\GlyphRecognizer\PC\DiO_CS_GlyphRecognizer\GlyphRecognition\bin\Debug\AForge.Vision.GlyphRecognition.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />

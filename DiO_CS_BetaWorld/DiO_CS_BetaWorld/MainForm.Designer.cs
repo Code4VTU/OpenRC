@@ -32,9 +32,11 @@
             this.mItCaptureeDevice = new System.Windows.Forms.ToolStripMenuItem();
             this.tblMain = new System.Windows.Forms.TableLayoutPanel();
             this.pbMain = new System.Windows.Forms.PictureBox();
+            this.dgvGlyphData = new System.Windows.Forms.DataGridView();
             this.menuStrip1.SuspendLayout();
             this.tblMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbMain)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvGlyphData)).BeginInit();
             this.SuspendLayout();
             // 
             // menuStrip1
@@ -56,9 +58,10 @@
             // tblMain
             // 
             this.tblMain.ColumnCount = 2;
-            this.tblMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 74.05213F));
-            this.tblMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 25.94787F));
+            this.tblMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 66.82465F));
+            this.tblMain.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 33.17535F));
             this.tblMain.Controls.Add(this.pbMain, 0, 0);
+            this.tblMain.Controls.Add(this.dgvGlyphData, 1, 0);
             this.tblMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tblMain.Location = new System.Drawing.Point(0, 24);
             this.tblMain.Name = "tblMain";
@@ -74,10 +77,18 @@
             this.pbMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pbMain.Location = new System.Drawing.Point(3, 3);
             this.pbMain.Name = "pbMain";
-            this.pbMain.Size = new System.Drawing.Size(618, 442);
+            this.pbMain.Size = new System.Drawing.Size(558, 442);
             this.pbMain.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.pbMain.TabIndex = 0;
             this.pbMain.TabStop = false;
+            // 
+            // dgvGlyphData
+            // 
+            this.dgvGlyphData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvGlyphData.Location = new System.Drawing.Point(567, 3);
+            this.dgvGlyphData.Name = "dgvGlyphData";
+            this.dgvGlyphData.Size = new System.Drawing.Size(265, 241);
+            this.dgvGlyphData.TabIndex = 1;
             // 
             // MainForm
             // 
@@ -94,6 +105,7 @@
             this.menuStrip1.PerformLayout();
             this.tblMain.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pbMain)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvGlyphData)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -105,6 +117,7 @@
         private System.Windows.Forms.ToolStripMenuItem mItCaptureeDevice;
         private System.Windows.Forms.TableLayoutPanel tblMain;
         private System.Windows.Forms.PictureBox pbMain;
+        private System.Windows.Forms.DataGridView dgvGlyphData;
     }
 }
 

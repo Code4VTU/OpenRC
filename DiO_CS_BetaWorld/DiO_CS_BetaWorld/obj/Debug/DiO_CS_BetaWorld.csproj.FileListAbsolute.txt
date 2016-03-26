@@ -16,3 +16,6 @@ C:\Users\DiO\Documents\Repos\OpenRC\OpenRC\DiO_CS_BetaWorld\DiO_CS_BetaWorld\bin
 C:\Users\DiO\Documents\Repos\OpenRC\OpenRC\DiO_CS_BetaWorld\DiO_CS_BetaWorld\bin\Debug\AForge.Math.xml
 C:\Users\DiO\Documents\Repos\OpenRC\OpenRC\DiO_CS_BetaWorld\DiO_CS_BetaWorld\bin\Debug\AForge.Video.xml
 C:\Users\DiO\Documents\Repos\OpenRC\OpenRC\DiO_CS_BetaWorld\DiO_CS_BetaWorld\bin\Debug\AForge.Video.DirectShow.xml
+C:\Users\DiO\Documents\Repos\OpenRC\OpenRC\DiO_CS_BetaWorld\DiO_CS_BetaWorld\bin\Debug\AForge.Vision.GlyphRecognition.dll
+C:\Users\DiO\Documents\Repos\OpenRC\OpenRC\DiO_CS_BetaWorld\DiO_CS_BetaWorld\bin\Debug\AForge.Vision.GlyphRecognition.pdb
+C:\Users\DiO\Documents\Repos\OpenRC\OpenRC\DiO_CS_BetaWorld\DiO_CS_BetaWorld\bin\Debug\AForge.Vision.GlyphRecognition.xml
