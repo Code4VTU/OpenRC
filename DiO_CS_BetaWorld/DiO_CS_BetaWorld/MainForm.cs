@@ -27,13 +27,13 @@ namespace DiO_CS_BetaWorld
         // Install-Package AForge.Imaging
         // Install-Package AForge.Vision
         // Install-Package AForge.Video
-        // TODO: Install AForge glyph recognizer (Refer to DiO_CS_GlyphRecognizer).
+        // DONE: Install AForge glyph recognizer (Refer to DiO_CS_GlyphRecognizer).
         // DONE: Create frame graber (Form timer, no need for delegates to draw to the form.).
         // DONE: Create video selector (DirectShow). Use listing method from (DiO_CS_StereoScopic).
         // DONE: Create video capture device (building capture device).
         // TODO: Create image processor (Glyph Processor).
         // TODO: Create robot controller (Betino). Will use standard (OR) protocol. The robot controller will be in different namespace.
-        // TODO: Use grid view for the responsive design.
+        // DONE: Use grid view for the responsive design.
         // DONE: Use AppUtils helper class from (WCount or UViewr).
         // 
 
@@ -316,6 +316,9 @@ namespace DiO_CS_BetaWorld
             this.recognisedGlyphs = tmpGlyps;
         }
 
+        /// <summary>
+        /// Setup data grid view for glyph data.
+        /// </summary>
         private void SetupDGVGlyphData()
         {
             //this.Controls.Add(dgvSelectWorkpiece);
@@ -343,7 +346,7 @@ namespace DiO_CS_BetaWorld
             this.dgvGlyphData.Columns[0].Name = "Name";
             this.dgvGlyphData.Columns[0].Width = 70;
             this.dgvGlyphData.Columns[1].Name = "Coordinates";
-            this.dgvGlyphData.Columns[1].Width = 150;
+            this.dgvGlyphData.Columns[1].Width = 350;
 
             //dgvSelectWorkpiece.Columns[4].DefaultCellStyle.Font =
             //    new Font(dgvSelectWorkpiece.DefaultCellStyle.Font, FontStyle.Italic);
@@ -354,20 +357,37 @@ namespace DiO_CS_BetaWorld
             this.dgvGlyphData.Dock = DockStyle.Fill;
         }
 
-
+        /// <summary>
+        /// Populate data grid view.
+        /// </summary>
+        /// <param name="glyphs"></param>
         private void PopulateGlyhData(List<ExtractedGlyphData> glyphs)
         {
             this.dgvGlyphData.Rows.Clear();
 
             foreach (ExtractedGlyphData item in glyphs)
             {
-                string[] row = new string[]
+                if (item.RecognizedGlyph != null && item.RecognizedGlyph.Name != "")
                 {
-                    "",
-                    "",
-                };
 
-                this.dgvGlyphData.Rows.Add(row);
+                    // Estimate orientation and position.
+                    float yaw = 0.0f;
+                    float pitch = 0.0f;
+                    float roll = 0.0f;
+                    item.EstimateOrientation(true, out yaw, out pitch, out roll);
+                    AForge.Point[] pp = item.PerformProjection();
+                    float area = item.Area();
+
+                    string textData = string.Format("Orientation[deg] Y: {1:F3}, P: {2:F3}, R: {3:F3}; Position[pix] X: {4:F3} Y: {5:F3}; Size: {5:F3}", yaw, pitch, roll, pp[0].X, pp[0].Y, area);
+
+                    string[] row = new string[]
+                    {
+                        item.RecognizedGlyph.Name,
+                        textData,
+                    };
+
+                    this.dgvGlyphData.Rows.Add(row);
+                }
             }
         }
 
