@@ -190,10 +190,10 @@ void ParseCommand(String command)
 //////////////////////////////////////////////////////////////////////////
 void ShowVersion()
 {
-  Serial.println("UNI : TU-Gabrovo");
-  Serial.println("DEP : AIUT");
-  Serial.println("NAME: Robot Karel v3.2");
-  Serial.println("DATE: 23.10.2014y."); 
+  Serial.println("ORG : OpenRC");
+  Serial.println("DEP : FMI");
+  Serial.println("NAME: Betino v2.0");
+  Serial.println("DATE: 26.03.2016y."); 
 }
 
 
