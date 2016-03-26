@@ -30,7 +30,7 @@ namespace DiO_CS_BetaWorld
         // Install-Package AForge.Video
         // TODO: Install AForge glyph recognizer (Refer to DiO_CS_GlyphRecognizer).
         // TODO: Create frame graber (Form timer, no need for delegates to draw to the form.).
-        // DONE: Create video selector (FFMpeg). Use listing method from (DiO_CS_StereoScopic).
+        // DONE: Create video selector (DirectShow). Use listing method from (DiO_CS_StereoScopic).
         // DONE: Create video capture device (building capture device).
         // TODO: Create image processor (Glyph Processor).
         // TODO: Create robot controller (Betino). Will use standard (OR) protocol. The robot controller will be in different namespace.
@@ -54,6 +54,16 @@ namespace DiO_CS_BetaWorld
         /// Captured image.
         /// </summary>
         private Bitmap capturedImage;
+
+        /// <summary>
+        /// Frame grabber.
+        /// </summary>
+        private System.Windows.Forms.Timer frameGrabber;
+
+        /// <summary>
+        /// Capture synk lock bit.
+        /// </summary>
+        private bool captureLockSynk = false;
 
         #endregion
 
@@ -90,6 +100,12 @@ namespace DiO_CS_BetaWorld
 
             // Add cameras to the menus.
             this.AddCameras(this.videoDevices, this.mItCaptureeDevice, this.mItCaptureeDevice_Click);
+
+            // Set the frame grabber timer.
+            this.frameGrabber = new Timer();
+            this.frameGrabber.Stop();
+            this.frameGrabber.Interval = 10;
+           
         }
 
         #endregion
@@ -151,30 +167,56 @@ namespace DiO_CS_BetaWorld
             }
         }
 
-        #endregion
-
-        #region Capturee Device Menu
-
-        private void mItCaptureeDevice_Click(object sender, EventArgs e)
+        private void StartCapture(string monikerString)
         {
-            ToolStripMenuItem item = (ToolStripMenuItem)sender;
-
-            this.pbMain.Tag = item.Text;
-
-            VideoDevice videoDevice = (VideoDevice)item.Tag;
-
-            if (this.videoSource != null)
-            {
-                this.videoSource.Stop();
-            }
-
-            this.videoSource = new VideoCaptureDevice(videoDevice.MonikerString);
+            this.videoSource = new VideoCaptureDevice(monikerString);
 
             // We will only use 1 frame ready event this is not really safe but it fits the purpose.
             this.videoSource.NewFrame += new NewFrameEventHandler(this.videoSource_NewFrame);
 
             //_Capture2.Start(); //We make sure we start Capture device 2 first.
             this.videoSource.Start();
+
+            // Start the timer.
+            this.frameGrabber.Tick += this.frameGrabber_Tick;
+            this.frameGrabber.Start();
+        }
+
+        private void StopCapture()
+        {
+            if (this.videoSource != null)
+            {
+                // We will only use 1 frame ready event this is not really safe but it fits the purpose.
+                this.videoSource.NewFrame -= new NewFrameEventHandler(this.videoSource_NewFrame);
+
+                this.videoSource.Stop();
+            }
+
+            // Stop the timer.
+            this.frameGrabber.Tick -= this.frameGrabber_Tick;
+            this.frameGrabber.Stop();
+        }
+
+        #endregion
+
+        #region Capturee Device Menu
+
+        private void mItCaptureeDevice_Click(object sender, EventArgs e)
+        {
+            // Create instance of caller.
+            ToolStripMenuItem item = (ToolStripMenuItem)sender;
+
+            // Display text.
+            this.pbMain.Tag = item.Text;
+
+            // Get device.
+            VideoDevice videoDevice = (VideoDevice)item.Tag;
+
+            // Stop if other stream was displaing.
+            this.StopCapture();
+
+            // Start the new stream.
+            this.StartCapture(videoDevice.MonikerString);
         }
 
         #endregion
@@ -183,12 +225,6 @@ namespace DiO_CS_BetaWorld
 
         private void videoSource_NewFrame(object sender, NewFrameEventArgs eventArgs)
         {
-            // Dispose last frame.
-            if (this.capturedImage != null)
-            {
-                //this.capturedImage.Dispose();
-            }
-
             // Clone the content.
             this.capturedImage = (Bitmap)eventArgs.Frame.Clone();
 
@@ -207,21 +243,34 @@ namespace DiO_CS_BetaWorld
                 this.capturedImage = temp;
             }
 
+            captureLockSynk = true;
+        }
+
+        #endregion
+
+        #region Frame Grabber
+
+        private void frameGrabber_Tick(object sender, EventArgs e)
+        {
+            // Dispose last frame.
+            if (this.capturedImage == null)
+            {
+                return;
+                //this.capturedImage.Dispose();
+            }
+
+            // Exit if not synced.
+            if (!captureLockSynk)
+            {
+                return;
+            }
+            captureLockSynk = false;
+
+
             //TODO: Make preprocessing hear if it is needed.
 
-            if (this.pbMain.InvokeRequired)
-            {
-                this.pbMain.BeginInvoke((MethodInvoker)delegate()
-                {
-                    Bitmap rszImage = AppUtils.ResizeImage(this.capturedImage, this.pbMain.Size);
-                    this.pbMain.Image = rszImage;
-                });
-            }
-            else
-            {
-                Bitmap rszImage = AppUtils.ResizeImage(this.capturedImage, this.pbMain.Size);
-                this.pbMain.Image = rszImage;
-            }
+            Bitmap rszImage = AppUtils.ResizeImage(this.capturedImage, this.pbMain.Size);
+            this.pbMain.Image = rszImage;
         }
 
         #endregion
