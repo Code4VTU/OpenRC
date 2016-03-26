@@ -13,17 +13,17 @@ namespace Video
         /// <summary>
         /// Name of device.
         /// </summary>
-        public string Name;
+        public string Name { get; private set; }
 
         /// <summary>
         /// Device index.
         /// </summary>
-        public int Index;
+        public int Index { get; private set; }
 
         /// <summary>
-        /// Device identifier.
+        /// Moniker string.
         /// </summary>
-        public Guid ClassID;
+        public string MonikerString { get; private set; }
 
         #endregion
 
@@ -32,14 +32,14 @@ namespace Video
         /// <summary>
         /// Constructor
         /// </summary>
-        /// <param name="index">Device index</param>
-        /// <param name="name">Device name</param>
-        /// <param name="classId">Identifyer</param>
-        public VideoDevice(int index, string name, Guid classId = new Guid())
+        /// <param name="index">Device index.</param>
+        /// <param name="name">Name</param>
+        /// <param name="monikerString">Moniker string.</param>
+        public VideoDevice(int index, string name, string monikerString)
         {
-            this.Index = index;
+           this.Index = index;
             this.Name = name;
-            this.ClassID = classId;
+            this.MonikerString = monikerString;
         }
 
         #endregion
@@ -54,7 +54,7 @@ namespace Video
         /// </returns>
         public override string ToString()
         {
-            return String.Format("[{0} {1}:{2}]", this.Index, this.Name, this.ClassID);
+            return String.Format("[{0} {1}:{2}]", this.Index, this.Name, this.MonikerString);
         }
 
         #endregion

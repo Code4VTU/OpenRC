@@ -1,15 +1,20 @@
-﻿using DirectShowLib;
+﻿using AForge;
+using AForge.Imaging.Filters;
+using AForge.Video;
+using AForge.Video.DirectShow;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-using Video;
 
-// C:\Program Files (x86)\AForge.NET\Framework\Release
+using Utils;
+using Video;
 
 namespace DiO_CS_BetaWorld
 {
@@ -19,18 +24,18 @@ namespace DiO_CS_BetaWorld
     public partial class MainForm : Form
     {
         // -=== To do list ===-
-        // TODO: Install AForge image processing (Use PM console).
+        // DONE: Install AForge image processing (Use PM console).
         // Install-Package AForge.Imaging
         // Install-Package AForge.Vision
         // Install-Package AForge.Video
         // TODO: Install AForge glyph recognizer (Refer to DiO_CS_GlyphRecognizer).
         // TODO: Create frame graber (Form timer, no need for delegates to draw to the form.).
         // DONE: Create video selector (FFMpeg). Use listing method from (DiO_CS_StereoScopic).
-        // TODO: Create video capture device (building capture device).
+        // DONE: Create video capture device (building capture device).
         // TODO: Create image processor (Glyph Processor).
         // TODO: Create robot controller (Betino). Will use standard (OR) protocol. The robot controller will be in different namespace.
         // TODO: Use grid view for the responsive design.
-        // TODO: Use AppUtils helper class from (WCount or UViewr).
+        // DONE: Use AppUtils helper class from (WCount or UViewr).
         // 
 
         #region Variables
@@ -39,6 +44,16 @@ namespace DiO_CS_BetaWorld
         /// Video capture devices.
         /// </summary>
         private VideoDevice[] videoDevices;
+
+        /// <summary>
+        /// Camera 1
+        /// </summary>
+        private VideoCaptureDevice videoSource;
+
+        /// <summary>
+        /// Captured image.
+        /// </summary>
+        private Bitmap capturedImage;
 
         #endregion
 
@@ -89,13 +104,16 @@ namespace DiO_CS_BetaWorld
         {
             //Set up the capture method 
             //-> Find systems cameras with DirectShow.Net dll, thanks to Carles Lloret.
-            DsDevice[] systemCamereas = DsDevice.GetDevicesOfCat(FilterCategory.VideoInputDevice);
+            //DsDevice[] systemCamereas = DsDevice.GetDevicesOfCat(AForge.Video.DirectShow.FilterCategory.VideoInputDevice);
 
-            VideoDevice[] videoDevices = new VideoDevice[systemCamereas.Length];
+            // Enumerate video devices
+            FilterInfoCollection systemCamereas = new FilterInfoCollection(FilterCategory.VideoInputDevice);
+            
+            VideoDevice[] videoDevices = new VideoDevice[systemCamereas.Count];
 
-            for (int index = 0; index < systemCamereas.Length; index++)
+            for (int index = 0; index < systemCamereas.Count; index++)
             {
-                videoDevices[index] = new VideoDevice(index, systemCamereas[index].Name, systemCamereas[index].ClassID);
+                videoDevices[index] = new VideoDevice(index, systemCamereas[index].Name, systemCamereas[index].MonikerString);
             }
 
             return videoDevices;
@@ -122,7 +140,7 @@ namespace DiO_CS_BetaWorld
                 ToolStripMenuItem mItem = new ToolStripMenuItem();
 
                 mItem.Text = String.Format("{0:D2} / {1}", device.Index, device.Name);
-                mItem.Tag = device.Index;
+                mItem.Tag = device;
                 mItem.Enabled = true;
                 mItem.Checked = false;
 
@@ -139,13 +157,88 @@ namespace DiO_CS_BetaWorld
 
         private void mItCaptureeDevice_Click(object sender, EventArgs e)
         {
-            // Get instace from sender.
             ToolStripMenuItem item = (ToolStripMenuItem)sender;
 
-            // Get device index.
-            int index = (int)item.Tag;
+            this.pbMain.Tag = item.Text;
+
+            VideoDevice videoDevice = (VideoDevice)item.Tag;
+
+            if (this.videoSource != null)
+            {
+                this.videoSource.Stop();
+            }
+
+            this.videoSource = new VideoCaptureDevice(videoDevice.MonikerString);
+
+            // We will only use 1 frame ready event this is not really safe but it fits the purpose.
+            this.videoSource.NewFrame += new NewFrameEventHandler(this.videoSource_NewFrame);
+
+            //_Capture2.Start(); //We make sure we start Capture device 2 first.
+            this.videoSource.Start();
         }
 
         #endregion
+
+        #region Video Source
+
+        private void videoSource_NewFrame(object sender, NewFrameEventArgs eventArgs)
+        {
+            // Dispose last frame.
+            if (this.capturedImage != null)
+            {
+                //this.capturedImage.Dispose();
+            }
+
+            // Clone the content.
+            this.capturedImage = (Bitmap)eventArgs.Frame.Clone();
+
+            // Exif there is a problem with data cloning.
+            if (this.capturedImage == null)
+            {
+                return;
+            }
+
+            // Convert image to RGB if it is grayscale.
+            if (this.capturedImage.PixelFormat == PixelFormat.Format8bppIndexed)
+            {
+                GrayscaleToRGB filter = new GrayscaleToRGB();
+                Bitmap temp = filter.Apply(this.capturedImage);
+                this.capturedImage.Dispose();
+                this.capturedImage = temp;
+            }
+
+            //TODO: Make preprocessing hear if it is needed.
+
+            if (this.pbMain.InvokeRequired)
+            {
+                this.pbMain.BeginInvoke((MethodInvoker)delegate()
+                {
+                    Bitmap rszImage = AppUtils.ResizeImage(this.capturedImage, this.pbMain.Size);
+                    this.pbMain.Image = rszImage;
+                });
+            }
+            else
+            {
+                Bitmap rszImage = AppUtils.ResizeImage(this.capturedImage, this.pbMain.Size);
+                this.pbMain.Image = rszImage;
+            }
+        }
+
+        #endregion
+
+        #region Main Form
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            // Close video source.
+            if (this.videoSource != null)
+            {
+                this.videoSource.Stop();
+            }
+
+        }
+
+        #endregion
+
     }
 }
