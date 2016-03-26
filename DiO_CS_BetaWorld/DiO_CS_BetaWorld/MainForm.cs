@@ -3,7 +3,7 @@ using AForge.Imaging.Filters;
 using AForge.Video;
 using AForge.Video.DirectShow;
 using AForge.Vision.GlyphRecognition;
-using Betino;
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -13,8 +13,10 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+
 using Utils;
 using Video;
+using Betino;
 
 namespace DiO_CS_BetaWorld
 {
@@ -23,6 +25,7 @@ namespace DiO_CS_BetaWorld
     /// </summary>
     public partial class MainForm : Form
     {
+
         // -=== To do list ===-
         // DONE: Install AForge image processing (Use PM console).
         // Install-Package AForge.Imaging
@@ -32,8 +35,8 @@ namespace DiO_CS_BetaWorld
         // DONE: Create frame graber (Form timer, no need for delegates to draw to the form.).
         // DONE: Create video selector (DirectShow). Use listing method from (DiO_CS_StereoScopic).
         // DONE: Create video capture device (building capture device).
-        // TODO: Create image processor (Glyph Processor).
-        // TODO: Create robot controller (Betino). Will use standard (OR) protocol. The robot controller will be in different namespace.
+        // DONE: Create image processor (Glyph Processor).
+        // DONE: Create robot controller (Betino). Will use standard (OR) protocol. The robot controller will be in different namespace.
         // DONE: Use grid view for the responsive design.
         // DONE: Use AppUtils helper class from (WCount or UViewr).
         // 
@@ -89,6 +92,11 @@ namespace DiO_CS_BetaWorld
         /// Robot
         /// </summary>
         private TivaBot robot;
+
+        /// <summary>
+        /// Robot speed.
+        /// </summary>
+        private int robotSpeed = 0;
 
         #endregion
 
@@ -433,26 +441,10 @@ namespace DiO_CS_BetaWorld
             }
         }
 
-        private void mItSerialPort_Click(object sender, EventArgs e)
-        {
-            this.DisconnectFromRobot();
-            ToolStripMenuItem item = (ToolStripMenuItem)sender;
-            this.robotSerialPortName = item.Text;
-            this.ConnectToRobot(this.robotSerialPortName);
-
-            //if (this.robot.IsConnected)
-            //{
-            //    item.Checked = true;
-            //    this.lblIsConnected.Text = String.Format("Connected@{0}", this.robotSerialPortName);
-            //}
-            //else
-            //{
-            //    item.Checked = false;
-            //    this.lblIsConnected.Text = "Not Connected";
-            //}
-        }
-
-
+        /// <summary>
+        /// Connect to the robot.
+        /// </summary>
+        /// <param name="portName"></param>
         private void ConnectToRobot(string portName)
         {
             this.robot = new TivaBot(portName);
@@ -460,6 +452,9 @@ namespace DiO_CS_BetaWorld
             this.robot.Connect();
         }
 
+        /// <summary>
+        /// Disconnect from the robot.
+        /// </summary>
         private void DisconnectFromRobot()
         {
             if (this.robot == null) return;
@@ -467,9 +462,24 @@ namespace DiO_CS_BetaWorld
             this.robot.Disconnect();
         }
 
-        private void robot_OnMesage(object sender, Betino.Messages.MessageString e)
+        /// <summary>
+        /// Draw glyphs on the screen.
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="glyphs"></param>
+        private void DrawGlyphs(Bitmap image, List<ExtractedGlyphData> glyphs)
         {
-            throw new NotImplementedException();
+            if (image == null || image == null) return;
+
+            using (Graphics g = Graphics.FromImage((Image)image))
+            {
+                foreach (ExtractedGlyphData glyph in glyphs)
+                {
+                    glyph.DrawContour(g);
+                    glyph.DrawPoints(g);
+                    glyph.DrawCoordinates(g);
+                }
+            }
         }
 
         #endregion
@@ -492,6 +502,34 @@ namespace DiO_CS_BetaWorld
 
             // Start the new stream.
             this.StartCapture(videoDevice.MonikerString);
+        }
+
+        #endregion
+
+        #region Serial Port Menu
+
+        /// <summary>
+        /// Menu item.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void mItSerialPort_Click(object sender, EventArgs e)
+        {
+            this.DisconnectFromRobot();
+            ToolStripMenuItem item = (ToolStripMenuItem)sender;
+            this.robotSerialPortName = item.Text;
+            this.ConnectToRobot(this.robotSerialPortName);
+
+            if (this.robot.IsConnected)
+            {
+                item.Checked = true;
+                this.lblIsConnected.Text = String.Format("Connected: {0}", this.robotSerialPortName);
+            }
+            else
+            {
+                item.Checked = false;
+                this.lblIsConnected.Text = "Connected: Not";
+            }
         }
 
         #endregion
@@ -553,6 +591,11 @@ namespace DiO_CS_BetaWorld
 
             this.PopulateGlyhData(this.recognisedGlyphs);
 
+            this.DrawGlyphs(this.capturedImage, this.recognisedGlyphs);
+
+
+
+
             Bitmap rszImage = AppUtils.FitImage(this.capturedImage, this.pbMain.Size);
             this.pbMain.Image = rszImage;
         }
@@ -569,6 +612,130 @@ namespace DiO_CS_BetaWorld
                 this.videoSource.Stop();
             }
 
+        }
+
+        #endregion
+
+        #region Track Bar Speed
+
+        private void trbSpeed_ValueChanged(object sender, EventArgs e)
+        {
+            this.robotSpeed = this.trbSpeed.Value;
+            this.lblSpeed.Text = String.Format("Speed: {0}", this.robotSpeed);
+        }
+
+        #endregion
+
+        #region Robot
+
+        private void MoveForwared()
+        {
+            if (this.robot == null) return;
+            if (!this.robot.IsConnected) return;
+
+            int pwmValue = robotSpeed * 10;
+            this.robot.Steer(pwmValue, pwmValue);
+        }
+
+        private void MoveBackared()
+        {
+            if (this.robot == null) return;
+            if (!this.robot.IsConnected) return;
+
+            int pwmValue = robotSpeed * 10;
+            this.robot.Steer(-pwmValue, -pwmValue);
+        }
+
+        private void MoveLeft()
+        {
+            if (this.robot == null) return;
+            if (!this.robot.IsConnected) return;
+
+            int pwmValue = robotSpeed * 10;
+            this.robot.Steer(-pwmValue, pwmValue);
+        }
+
+        private void MoveRight()
+        {
+            if (this.robot == null) return;
+            if (!this.robot.IsConnected) return;
+
+            int pwmValue = robotSpeed * 10;
+            this.robot.Steer(pwmValue, -pwmValue);
+        }
+        
+        private void StopRobot()
+        {
+            if (this.robot == null) return;
+            if (!this.robot.IsConnected) return;
+
+            this.robot.Steer(0, 0);
+        }
+
+        private void robot_OnMesage(object sender, Betino.Messages.MessageString e)
+        {
+            string message = String.Format("Messgae:\r\n{0}", e.Message);
+
+            if (this.lblRobotMessage.InvokeRequired)
+            {
+                this.lblRobotMessage.BeginInvoke((MethodInvoker)delegate()
+                {
+                    this.lblRobotMessage.Text = message;
+                });
+            }
+            else
+            {
+                this.lblRobotMessage.Text = message;
+            }
+        }
+
+        #endregion
+
+        #region Buttons
+
+        private void btnUp_MouseDown(object sender, MouseEventArgs e)
+        {
+            this.MoveForwared();
+        }
+
+        private void btnUp_MouseUp(object sender, MouseEventArgs e)
+        {
+            this.StopRobot();
+        }
+
+        private void btnLeft_MouseDown(object sender, MouseEventArgs e)
+        {
+            this.MoveLeft();
+        }
+
+        private void btnLeft_MouseUp(object sender, MouseEventArgs e)
+        {
+            this.StopRobot();
+        }
+
+        private void btnDown_MouseDown(object sender, MouseEventArgs e)
+        {
+            this.MoveBackared();
+        }
+
+        private void btnDown_MouseUp(object sender, MouseEventArgs e)
+        {
+            this.StopRobot();
+        }
+
+        private void btnRight_MouseDown(object sender, MouseEventArgs e)
+        {
+            this.MoveRight();
+        }
+
+        private void btnRight_MouseUp(object sender, MouseEventArgs e)
+        {
+            this.StopRobot();
+        }
+
+        private void btnStop_Click(object sender, EventArgs e)
+        {
+            this.StopRobot();
         }
 
         #endregion

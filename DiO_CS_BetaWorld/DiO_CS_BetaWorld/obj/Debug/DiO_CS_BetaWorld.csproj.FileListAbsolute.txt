@@ -19,3 +19,4 @@ C:\Users\DiO\Documents\Repos\OpenRC\OpenRC\DiO_CS_BetaWorld\DiO_CS_BetaWorld\bin
 C:\Users\DiO\Documents\Repos\OpenRC\OpenRC\DiO_CS_BetaWorld\DiO_CS_BetaWorld\bin\Debug\AForge.Vision.GlyphRecognition.dll
 C:\Users\DiO\Documents\Repos\OpenRC\OpenRC\DiO_CS_BetaWorld\DiO_CS_BetaWorld\bin\Debug\AForge.Vision.GlyphRecognition.pdb
 C:\Users\DiO\Documents\Repos\OpenRC\OpenRC\DiO_CS_BetaWorld\DiO_CS_BetaWorld\bin\Debug\AForge.Vision.GlyphRecognition.xml
+C:\Users\DiO\Documents\Repos\OpenRC\OpenRC\DiO_CS_BetaWorld\DiO_CS_BetaWorld\obj\Debug\DiO_CS_BetaWorld.Images.resources
