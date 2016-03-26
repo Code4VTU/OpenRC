@@ -2,7 +2,7 @@
 using AForge.Imaging.Filters;
 using AForge.Video;
 using AForge.Video.DirectShow;
-
+using AForge.Vision.GlyphRecognition;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -12,7 +12,6 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
-
 using Utils;
 using Video;
 
@@ -29,7 +28,7 @@ namespace DiO_CS_BetaWorld
         // Install-Package AForge.Vision
         // Install-Package AForge.Video
         // TODO: Install AForge glyph recognizer (Refer to DiO_CS_GlyphRecognizer).
-        // TODO: Create frame graber (Form timer, no need for delegates to draw to the form.).
+        // DONE: Create frame graber (Form timer, no need for delegates to draw to the form.).
         // DONE: Create video selector (DirectShow). Use listing method from (DiO_CS_StereoScopic).
         // DONE: Create video capture device (building capture device).
         // TODO: Create image processor (Glyph Processor).
@@ -64,6 +63,17 @@ namespace DiO_CS_BetaWorld
         /// Capture synk lock bit.
         /// </summary>
         private bool captureLockSynk = false;
+
+        /// <summary>
+        /// Collection of glyph databases.
+        /// </summary>
+        private GlyphDatabases glyphDatabases;
+
+        /// <summary>
+        /// Glyph recognizer to use for glyph recognition in video.
+        /// </summary>
+        private GlyphRecognizer recognizer;
+
 
         #endregion
 
@@ -105,7 +115,9 @@ namespace DiO_CS_BetaWorld
             this.frameGrabber = new Timer();
             this.frameGrabber.Stop();
             this.frameGrabber.Interval = 10;
-           
+
+            // Load glyph data base.
+            this.LoadGlyphDatabases5();           
         }
 
         #endregion
@@ -167,6 +179,10 @@ namespace DiO_CS_BetaWorld
             }
         }
 
+        /// <summary>
+        /// Start video capture.
+        /// </summary>
+        /// <param name="monikerString">Moniker string.</param>
         private void StartCapture(string monikerString)
         {
             this.videoSource = new VideoCaptureDevice(monikerString);
@@ -182,6 +198,9 @@ namespace DiO_CS_BetaWorld
             this.frameGrabber.Start();
         }
 
+        /// <summary>
+        /// Stop video capture.
+        /// </summary>
         private void StopCapture()
         {
             if (this.videoSource != null)
@@ -195,6 +214,82 @@ namespace DiO_CS_BetaWorld
             // Stop the timer.
             this.frameGrabber.Tick -= this.frameGrabber_Tick;
             this.frameGrabber.Stop();
+        }
+
+        /// <summary>
+        /// Refresh the list displaying available databases of glyphss
+        /// </summary>
+        private void LoadGlyphDatabases5()
+        {
+            const string dbName = "ExampleSize5";
+            const int glyphSize = 5;
+
+            // Create glyph.
+            string glyphName1 = "Test1";
+            byte[,] glyphData1 = new byte[glyphSize, glyphSize]
+            {
+                {0, 0, 0, 0, 0},
+                {0, 0, 1, 0, 0},
+                {0, 1, 1, 1, 0},
+                {0, 1, 0, 0, 0},
+                {0, 0, 0, 0, 0}
+            };
+
+            Glyph testGlyph1 = new Glyph(glyphName1, glyphData1);
+            testGlyph1.UserData = new GlyphVisualizationData(Color.Purple);
+
+            // Create glyph.
+            string glyphName2 = "Test2";
+            byte[,] glyphData2 = new byte[glyphSize, glyphSize]
+            {
+                {0, 0, 0, 0, 0},
+                {0, 1, 0, 1, 0},
+                {0, 0, 1, 0, 0},
+                {0, 1, 0, 0, 0},
+                {0, 0, 0, 0, 0}
+            };
+
+            Glyph testGlyph2 = new Glyph(glyphName2, glyphData2);
+            testGlyph2.UserData = new GlyphVisualizationData(Color.Blue);
+
+            // Create glyph.
+            string glyphName3 = "Test3";
+            byte[,] glyphData3 = new byte[glyphSize, glyphSize]
+            {
+                {0, 0, 0, 0, 0},
+                {0, 1, 0, 1, 0},
+                {0, 0, 1, 0, 0},
+                {0, 0, 1, 1, 0},
+                {0, 0, 0, 0, 0}
+            };
+
+            Glyph testGlyph3 = new Glyph(glyphName3, glyphData3);
+            testGlyph3.UserData = new GlyphVisualizationData(Color.Green);
+
+            // Create database.
+            GlyphDatabase lGlyphDatabase = new GlyphDatabase(glyphSize);
+
+            // Add glyph to database.
+            lGlyphDatabase.Add(testGlyph1);
+            lGlyphDatabase.Add(testGlyph2);
+            lGlyphDatabase.Add(testGlyph3);
+
+            // Add database.
+            this.glyphDatabases.AddGlyphDatabase(dbName, lGlyphDatabase);
+
+            this.recognizer = new GlyphRecognizer(glyphSize);
+
+            // set the database to image processor ...
+            this.recognizer.GlyphDatabase = this.glyphDatabases[dbName]; ;
+        }
+
+        /// <summary>
+        /// Process image form the camera.
+        /// </summary>
+        /// <param name="bitmap"></param>
+        private void ProcessImage(Bitmap bitmap)
+        {
+
         }
 
         #endregion
@@ -225,6 +320,11 @@ namespace DiO_CS_BetaWorld
 
         private void videoSource_NewFrame(object sender, NewFrameEventArgs eventArgs)
         {
+            if (captureLockSynk)
+            {
+                return;
+            }
+
             // Clone the content.
             this.capturedImage = (Bitmap)eventArgs.Frame.Clone();
 
@@ -269,7 +369,9 @@ namespace DiO_CS_BetaWorld
 
             //TODO: Make preprocessing hear if it is needed.
 
-            Bitmap rszImage = AppUtils.ResizeImage(this.capturedImage, this.pbMain.Size);
+            this.ProcessImage(this.capturedImage);
+
+            Bitmap rszImage = AppUtils.FitImage(this.capturedImage, this.pbMain.Size);
             this.pbMain.Image = rszImage;
         }
 
