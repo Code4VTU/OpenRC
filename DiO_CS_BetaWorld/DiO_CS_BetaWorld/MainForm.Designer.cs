@@ -30,12 +30,12 @@
         {
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.mItCaptureeDevice = new System.Windows.Forms.ToolStripMenuItem();
+            this.mItSerialPort = new System.Windows.Forms.ToolStripMenuItem();
             this.tblMain = new System.Windows.Forms.TableLayoutPanel();
             this.pbMain = new System.Windows.Forms.PictureBox();
             this.tlpSide = new System.Windows.Forms.TableLayoutPanel();
             this.dgvGlyphData = new System.Windows.Forms.DataGridView();
             this.pnlManualControl = new System.Windows.Forms.Panel();
-            this.serialPortToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.tblMain.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbMain)).BeginInit();
@@ -47,7 +47,7 @@
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.mItCaptureeDevice,
-            this.serialPortToolStripMenuItem});
+            this.mItSerialPort});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(844, 24);
@@ -59,6 +59,12 @@
             this.mItCaptureeDevice.Name = "mItCaptureeDevice";
             this.mItCaptureeDevice.Size = new System.Drawing.Size(104, 20);
             this.mItCaptureeDevice.Text = "Capture Devices";
+            // 
+            // mItSerialPort
+            // 
+            this.mItSerialPort.Name = "mItSerialPort";
+            this.mItSerialPort.Size = new System.Drawing.Size(72, 20);
+            this.mItSerialPort.Text = "Serial Port";
             // 
             // tblMain
             // 
@@ -120,12 +126,6 @@
             this.pnlManualControl.Size = new System.Drawing.Size(436, 240);
             this.pnlManualControl.TabIndex = 1;
             // 
-            // serialPortToolStripMenuItem
-            // 
-            this.serialPortToolStripMenuItem.Name = "serialPortToolStripMenuItem";
-            this.serialPortToolStripMenuItem.Size = new System.Drawing.Size(72, 20);
-            this.serialPortToolStripMenuItem.Text = "Serial Port";
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -157,7 +157,7 @@
         private System.Windows.Forms.TableLayoutPanel tlpSide;
         private System.Windows.Forms.DataGridView dgvGlyphData;
         private System.Windows.Forms.Panel pnlManualControl;
-        private System.Windows.Forms.ToolStripMenuItem serialPortToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem mItSerialPort;
     }
 }
 

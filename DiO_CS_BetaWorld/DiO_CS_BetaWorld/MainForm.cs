@@ -3,6 +3,7 @@ using AForge.Imaging.Filters;
 using AForge.Video;
 using AForge.Video.DirectShow;
 using AForge.Vision.GlyphRecognition;
+using Betino;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -79,6 +80,16 @@ namespace DiO_CS_BetaWorld
         /// </summary>
         private List<ExtractedGlyphData> recognisedGlyphs;
 
+        /// <summary>
+        /// Serial port.
+        /// </summary>
+        private string robotSerialPortName;
+
+        /// <summary>
+        /// Robot
+        /// </summary>
+        private TivaBot robot;
+
         #endregion
 
         #region Constructor
@@ -139,6 +150,9 @@ namespace DiO_CS_BetaWorld
 
             // Setup data grid view for glyph data.
             this.SetupDGVGlyphData();
+
+            // Search for serial port.
+            this.SearchForPorts();
         }
 
         #endregion
@@ -389,6 +403,73 @@ namespace DiO_CS_BetaWorld
                     this.dgvGlyphData.Rows.Add(row);
                 }
             }
+        }
+
+        /// <summary>
+        /// Searc for serial port.
+        /// </summary>
+        private void SearchForPorts()
+        {
+            this.mItSerialPort.DropDown.Items.Clear();
+
+            string[] portNames = System.IO.Ports.SerialPort.GetPortNames();
+
+            if (portNames.Length == 0)
+            {
+                return;
+            }
+
+            foreach (string item in portNames)
+            {
+                //store the each retrieved available prot names into the MenuItems...
+                this.mItSerialPort.DropDown.Items.Add(item);
+            }
+
+            foreach (ToolStripMenuItem item in this.mItSerialPort.DropDown.Items)
+            {
+                item.Click += mItSerialPort_Click;
+                item.Enabled = true;
+                item.Checked = false;
+            }
+        }
+
+        private void mItSerialPort_Click(object sender, EventArgs e)
+        {
+            this.DisconnectFromRobot();
+            ToolStripMenuItem item = (ToolStripMenuItem)sender;
+            this.robotSerialPortName = item.Text;
+            this.ConnectToRobot(this.robotSerialPortName);
+
+            //if (this.robot.IsConnected)
+            //{
+            //    item.Checked = true;
+            //    this.lblIsConnected.Text = String.Format("Connected@{0}", this.robotSerialPortName);
+            //}
+            //else
+            //{
+            //    item.Checked = false;
+            //    this.lblIsConnected.Text = "Not Connected";
+            //}
+        }
+
+
+        private void ConnectToRobot(string portName)
+        {
+            this.robot = new TivaBot(portName);
+            this.robot.OnMesage += this.robot_OnMesage;
+            this.robot.Connect();
+        }
+
+        private void DisconnectFromRobot()
+        {
+            if (this.robot == null) return;
+            this.robot.OnMesage -= this.robot_OnMesage;
+            this.robot.Disconnect();
+        }
+
+        private void robot_OnMesage(object sender, Betino.Messages.MessageString e)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion
