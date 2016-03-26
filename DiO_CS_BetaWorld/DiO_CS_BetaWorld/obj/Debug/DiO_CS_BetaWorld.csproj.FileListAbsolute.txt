@@ -1,0 +1,9 @@
+C:\Users\DiO\Documents\Repos\OpenRC\OpenRC\DiO_CS_BetaWorld\DiO_CS_BetaWorld\obj\Debug\DiO_CS_BetaWorld.csprojResolveAssemblyReference.cache
+C:\Users\DiO\Documents\Repos\OpenRC\OpenRC\DiO_CS_BetaWorld\DiO_CS_BetaWorld\obj\Debug\DiO_CS_BetaWorld.MainForm.resources
+C:\Users\DiO\Documents\Repos\OpenRC\OpenRC\DiO_CS_BetaWorld\DiO_CS_BetaWorld\obj\Debug\DiO_CS_BetaWorld.Properties.Resources.resources
+C:\Users\DiO\Documents\Repos\OpenRC\OpenRC\DiO_CS_BetaWorld\DiO_CS_BetaWorld\obj\Debug\DiO_CS_BetaWorld.csproj.GenerateResource.Cache
+C:\Users\DiO\Documents\Repos\OpenRC\OpenRC\DiO_CS_BetaWorld\DiO_CS_BetaWorld\bin\Debug\DiO_CS_BetaWorld.exe
+C:\Users\DiO\Documents\Repos\OpenRC\OpenRC\DiO_CS_BetaWorld\DiO_CS_BetaWorld\bin\Debug\DiO_CS_BetaWorld.pdb
+C:\Users\DiO\Documents\Repos\OpenRC\OpenRC\DiO_CS_BetaWorld\DiO_CS_BetaWorld\bin\Debug\DirectShowLib-2005.dll
+C:\Users\DiO\Documents\Repos\OpenRC\OpenRC\DiO_CS_BetaWorld\DiO_CS_BetaWorld\obj\Debug\DiO_CS_BetaWorld.exe
+C:\Users\DiO\Documents\Repos\OpenRC\OpenRC\DiO_CS_BetaWorld\DiO_CS_BetaWorld\obj\Debug\DiO_CS_BetaWorld.pdb
