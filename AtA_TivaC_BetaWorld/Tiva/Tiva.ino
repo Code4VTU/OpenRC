@@ -1,4 +1,4 @@
-#include "pin_definitions.h"
+#include "BetinoPins.h"
 #include "Motors.h"
 
 #include <String.h>

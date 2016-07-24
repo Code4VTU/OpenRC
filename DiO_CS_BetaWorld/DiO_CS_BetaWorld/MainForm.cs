@@ -121,15 +121,6 @@ namespace DiO_CS_BetaWorld
                     Application.Exit();
                 }
             }
-            else if (videoDevices.Length < 2)
-            {
-                DialogResult res = MessageBox.Show("Only 1 camera detected. Stero Imaging can not be emulated. Do you want to exit?", "",
-                     MessageBoxButtons.YesNo, MessageBoxIcon.Question);
-                if (res == System.Windows.Forms.DialogResult.Yes)
-                {
-                    Application.Exit();
-                }
-            }
 
             // Add cameras to the menus.
             this.AddCameras(this.videoDevices, this.mItCaptureeDevice, this.mItCaptureeDevice_Click);
@@ -475,7 +466,7 @@ namespace DiO_CS_BetaWorld
             {
                 foreach (ExtractedGlyphData glyph in glyphs)
                 {
-                    glyph.DrawContour(g);
+                    //glyph.DrawContour(g);
                     glyph.DrawPoints(g);
                     glyph.DrawCoordinates(g);
                 }
